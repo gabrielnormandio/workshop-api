@@ -1,12 +1,11 @@
 package com.workshop.curso.model;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.util.Objects;
 
+@Entity
+@Table(name = "tb_user")
 public class User {
 
     @Id
