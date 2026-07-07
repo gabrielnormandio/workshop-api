@@ -2,6 +2,10 @@ package com.workshop.curso.service;
 
 import com.workshop.curso.model.User;
 import com.workshop.curso.repository.UserRepository;
+import com.workshop.curso.service.exception.DatabaseException;
+import com.workshop.curso.service.exception.ResourceNotFoundException;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,7 +19,7 @@ public class UserService {
     public UserService(UserRepository repository) {
         this.repository = repository;
     }
-    public User addUser(User user) {
+    public User insertUser(User user) {
         return repository.save(user);
     }
 
@@ -25,7 +29,7 @@ public class UserService {
 
     public User findById(Long id) {
         Optional<User> obj = repository.findById(id);
-        return obj.get();
+        return obj.orElseThrow(() -> new ResourceNotFoundException(id));
     }
 
     public User update(Long id, User user) {
@@ -37,10 +41,13 @@ public class UserService {
         return repository.save(obj.get());
     }
 
-    public User delete(Long id) {
-        Optional<User> obj = repository.findById(id);
-        obj.ifPresent(repository::delete);
-
-        return obj.get();
+    public void delete(Long id) {
+        try {
+            repository.deleteById(id);
+        } catch (DataIntegrityViolationException e) {
+            throw new DatabaseException(e.getMessage());
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResourceNotFoundException(e.getMessage());
+        }
     }
 }

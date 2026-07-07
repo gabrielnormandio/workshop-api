@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
@@ -20,7 +21,7 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<User> save(@RequestBody User user) {
-        service.addUser(user);
+        service.insertUser(user);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
@@ -45,8 +46,8 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<User> delete(@PathVariable Long id) {
+        User user = findById(id).getBody();
         service.delete(id);
-
         return ResponseEntity.noContent().build();
     }
 }
