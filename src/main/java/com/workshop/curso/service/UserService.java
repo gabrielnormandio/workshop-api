@@ -4,11 +4,13 @@ import com.workshop.curso.model.User;
 import com.workshop.curso.repository.UserRepository;
 import com.workshop.curso.service.exception.DatabaseException;
 import com.workshop.curso.service.exception.ResourceNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -33,12 +35,21 @@ public class UserService {
     }
 
     public User update(Long id, User user) {
-        Optional<User> obj = repository.findById(id);
-        obj.get().setName(user.getName());
-        obj.get().setEmail(user.getEmail());
-        obj.get().setPhone(user.getPhone());
+        try {
+            User entity = repository.getOne(id);
+            updateData(entity, user);
+            return repository.save(entity);
+        } catch (EntityNotFoundException e) {
+            throw new ResourceNotFoundException(id);
+        }
 
-        return repository.save(obj.get());
+    }
+
+    private void updateData(User entity, User obj) {
+        entity.setName(obj.getName());
+        entity.setEmail(obj.getEmail());
+        entity.setPhone(obj.getPhone());
+        entity.setPassword(obj.getPassword());
     }
 
     public void delete(Long id) {
